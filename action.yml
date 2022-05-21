@@ -1,0 +1,87 @@
+name: "Run Setup"
+inputs:
+  token:
+    required: true
+    type: string
+  owner:
+    required: true
+    type: string
+  repo:
+    required: true
+    type: string
+  run-id:
+    required: true
+    type: string
+outputs:
+  run-id:
+    value: ${{ steps.workflow-data.outputs.run-id }}
+  run-url:
+    value: ${{ steps.workflow-data.outputs.run-url }}
+  run-ref:
+    value: ${{ steps.workflow-data.outputs.run-ref }}
+  run-artifact-dir:
+    value: ${{ steps.workflow-data.outputs.run-artifact-dir }}
+  run-sha:
+    value: ${{ steps.workflow-data.outputs.run-sha }}
+  run-sha-url:
+    value: ${{ steps.workflow-data.outputs.run-sha-url }}
+runs:
+  using: "composite"
+  steps:
+    - name: Log Inputs
+      run: |
+        echo "owner: ${{ inputs.owner }}"
+        echo "repo: ${{ inputs.repo }}"
+        echo "run-id: ${{ inputs.run-id }}"
+      shell: bash
+
+    - name: Get Workflow Data
+      uses: actions/github-script@v6
+      id: api-data
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+            let run = await github.rest.actions.getWorkflowRun({
+               "owner": "${{ inputs.owner }}",
+               "repo": "${{ inputs.repo }}",
+               "run_id": "${{ inputs.run-id }}"
+            });
+            return run.data;
+
+    - name: Failure Help
+      if: ${{ failure() }}
+      run: |
+        echo "The previous step may fail with a [HttpError]: Not Found."
+        echo "This is a permission error not an actual [HttpError]."
+      shell: bash
+
+    - name: Set Outputs
+      id: workflow-data
+      run: |
+        echo "::set-output name=run-id::${{ inputs.run-id }}"
+        echo "::set-output name=run-url::${{ github.server_url }}/${{ inputs.owner }}/${{ inputs.repo }}/actions/runs/${{ inputs.run-id }}"
+        echo "::set-output name=run-ref::${{ fromJSON(steps.api-data.outputs.result).head_branch }}"
+        echo "::set-output name=run-artifact-dir::${{ inputs.repo }}/${{ inputs.run-id }}"
+        echo "::set-output name=run-sha::${{ fromJSON(steps.api-data.outputs.result).head_sha }}"
+        echo "::set-output name=run-sha-url::${{ github.server_url }}/${{ inputs.owner }}/${{ inputs.repo }}/commit/${{ fromJSON(steps.api-data.outputs.result).head_sha }}"
+      shell: bash
+
+    - name: Validate Outputs
+      run: |
+        [[ "${{ steps.workflow-data.outputs.run-id }}" ]] || { echo "'run-id' output is not set." ; exit 1; }
+        [[ "${{ steps.workflow-data.outputs.run-url }}" ]] || { echo "'run-url' output is not set." ; exit 1; }
+        [[ "${{ steps.workflow-data.outputs.run-ref }}" ]] || { echo "'run-ref' output is not set." ; exit 1; }
+        [[ "${{ steps.workflow-data.outputs.run-artifact-dir }}" ]] || { echo "'run-artifact-dir' output is not set." ; exit 1; }
+        [[ "${{ steps.workflow-data.outputs.run-sha }}" ]] || { echo "'run-sha' output is not set." ; exit 1; }
+        [[ "${{ steps.workflow-data.outputs.run-sha-url }}" ]] || { echo "'run-sha-url' output is not set." ; exit 1; }
+      shell: bash
+
+    - name: Log Outputs
+      run: |
+        echo "run-id: ${{ steps.workflow-data.outputs.run-id }}"
+        echo "run-url: ${{ steps.workflow-data.outputs.run-url }}"
+        echo "run-ref: ${{ steps.workflow-data.outputs.run-ref }}"
+        echo "run-artifact-dir: ${{ steps.workflow-data.outputs.run-artifact-dir }}"
+        echo "run-sha: ${{ steps.workflow-data.outputs.run-sha }}"
+        echo "run-sha-url: ${{ steps.workflow-data.outputs.run-sha-url }}"
+      shell: bash
