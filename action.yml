@@ -1,4 +1,4 @@
-name: Workflow Data
+name: Workflow Info
 inputs:
   github-token:
     required: true
@@ -14,17 +14,17 @@ inputs:
     type: string
 outputs:
   run-id:
-    value: ${{ steps.workflow-data.outputs.run-id }}
+    value: ${{ steps.info.outputs.run-id }}
   run-url:
-    value: ${{ steps.workflow-data.outputs.run-url }}
+    value: ${{ steps.info.outputs.run-url }}
   run-ref:
-    value: ${{ steps.workflow-data.outputs.run-ref }}
+    value: ${{ steps.info.outputs.run-ref }}
   run-artifact-dir:
-    value: ${{ steps.workflow-data.outputs.run-artifact-dir }}
+    value: ${{ steps.info.outputs.run-artifact-dir }}
   run-sha:
-    value: ${{ steps.workflow-data.outputs.run-sha }}
+    value: ${{ steps.info.outputs.run-sha }}
   run-sha-url:
-    value: ${{ steps.workflow-data.outputs.run-sha-url }}
+    value: ${{ steps.info.outputs.run-sha-url }}
 runs:
   using: "composite"
   steps:
@@ -56,7 +56,7 @@ runs:
       shell: bash
 
     - name: Set Outputs
-      id: workflow-data
+      id: info
       run: |
         echo "::set-output name=run-id::${{ inputs.run-id }}"
         echo "::set-output name=run-url::${{ github.server_url }}/${{ inputs.owner }}/${{ inputs.repo }}/actions/runs/${{ inputs.run-id }}"
@@ -68,20 +68,20 @@ runs:
 
     - name: Validate Outputs
       run: |
-        [[ "${{ steps.workflow-data.outputs.run-id }}" ]] || { echo "'run-id' output is not set." ; exit 1; }
-        [[ "${{ steps.workflow-data.outputs.run-url }}" ]] || { echo "'run-url' output is not set." ; exit 1; }
-        [[ "${{ steps.workflow-data.outputs.run-ref }}" ]] || { echo "'run-ref' output is not set." ; exit 1; }
-        [[ "${{ steps.workflow-data.outputs.run-artifact-dir }}" ]] || { echo "'run-artifact-dir' output is not set." ; exit 1; }
-        [[ "${{ steps.workflow-data.outputs.run-sha }}" ]] || { echo "'run-sha' output is not set." ; exit 1; }
-        [[ "${{ steps.workflow-data.outputs.run-sha-url }}" ]] || { echo "'run-sha-url' output is not set." ; exit 1; }
+        [[ "${{ steps.info.outputs.run-id }}" ]] || { echo "'run-id' output is not set." ; exit 1; }
+        [[ "${{ steps.info.outputs.run-url }}" ]] || { echo "'run-url' output is not set." ; exit 1; }
+        [[ "${{ steps.info.outputs.run-ref }}" ]] || { echo "'run-ref' output is not set." ; exit 1; }
+        [[ "${{ steps.info.outputs.run-artifact-dir }}" ]] || { echo "'run-artifact-dir' output is not set." ; exit 1; }
+        [[ "${{ steps.info.outputs.run-sha }}" ]] || { echo "'run-sha' output is not set." ; exit 1; }
+        [[ "${{ steps.info.outputs.run-sha-url }}" ]] || { echo "'run-sha-url' output is not set." ; exit 1; }
       shell: bash
 
     - name: Log Outputs
       run: |
-        echo "run-id: ${{ steps.workflow-data.outputs.run-id }}"
-        echo "run-url: ${{ steps.workflow-data.outputs.run-url }}"
-        echo "run-ref: ${{ steps.workflow-data.outputs.run-ref }}"
-        echo "run-artifact-dir: ${{ steps.workflow-data.outputs.run-artifact-dir }}"
-        echo "run-sha: ${{ steps.workflow-data.outputs.run-sha }}"
-        echo "run-sha-url: ${{ steps.workflow-data.outputs.run-sha-url }}"
+        echo "run-id: ${{ steps.info.outputs.run-id }}"
+        echo "run-url: ${{ steps.info.outputs.run-url }}"
+        echo "run-ref: ${{ steps.info.outputs.run-ref }}"
+        echo "run-artifact-dir: ${{ steps.info.outputs.run-artifact-dir }}"
+        echo "run-sha: ${{ steps.info.outputs.run-sha }}"
+        echo "run-sha-url: ${{ steps.info.outputs.run-sha-url }}"
       shell: bash
