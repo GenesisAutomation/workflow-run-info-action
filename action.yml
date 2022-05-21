@@ -1,4 +1,4 @@
-name: Workflow Info
+name: Workflow Run Info
 inputs:
   github-token:
     required: true
@@ -35,7 +35,7 @@ runs:
         echo "run-id: ${{ inputs.run-id }}"
       shell: bash
 
-    - name: Get Workflow Data
+    - name: Get Workflow Run Data
       uses: actions/github-script@v6
       id: api-data
       with:
