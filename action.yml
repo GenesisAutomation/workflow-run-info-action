@@ -1,4 +1,4 @@
-name: "Run Setup"
+name: Workflow Data
 inputs:
   github-token:
     required: true
