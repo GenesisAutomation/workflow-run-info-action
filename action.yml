@@ -15,16 +15,18 @@ inputs:
 outputs:
   run-id:
     value: ${{ steps.info.outputs.run-id }}
+  run-event:
+    value: ${{ steps.info.outputs.run-event }}
   run-url:
     value: ${{ steps.info.outputs.run-url }}
   run-ref:
     value: ${{ steps.info.outputs.run-ref }}
-  run-artifact-dir:
-    value: ${{ steps.info.outputs.run-artifact-dir }}
   run-sha:
     value: ${{ steps.info.outputs.run-sha }}
   run-sha-url:
     value: ${{ steps.info.outputs.run-sha-url }}
+  run-artifact-dir:
+    value: ${{ steps.info.outputs.run-artifact-dir }}
 runs:
   using: "composite"
   steps:
@@ -59,32 +61,32 @@ runs:
       id: info
       run: |
         echo "::set-output name=run-id::${{ inputs.run-id }}"
+        echo "::set-output name=run-event::${{ fromJSON(steps.api-data.outputs.result).event }}"
         echo "::set-output name=run-url::${{ github.server_url }}/${{ inputs.owner }}/${{ inputs.repo }}/actions/runs/${{ inputs.run-id }}"
         echo "::set-output name=run-ref::${{ fromJSON(steps.api-data.outputs.result).head_branch }}"
         echo "::set-output name=run-sha::${{ fromJSON(steps.api-data.outputs.result).head_sha }}"
         echo "::set-output name=run-sha-url::${{ github.server_url }}/${{ inputs.owner }}/${{ inputs.repo }}/commit/${{ fromJSON(steps.api-data.outputs.result).head_sha }}"
-        echo "::set-output name=run-event::${{ fromJSON(steps.api-data.outputs.result).event }}"
         echo "::set-output name=run-artifact-dir::${{ inputs.repo }}/${{ inputs.run-id }}"
       shell: bash
 
     - name: Validate Outputs
       run: |
         [[ "${{ steps.info.outputs.run-id }}" ]] || { echo "'run-id' output is not set." ; exit 1; }
+        [[ "${{ steps.info.outputs.run-event }}" ]] || { echo "'run-event' output is not set." ; exit 1; }
         [[ "${{ steps.info.outputs.run-url }}" ]] || { echo "'run-url' output is not set." ; exit 1; }
         [[ "${{ steps.info.outputs.run-ref }}" ]] || { echo "'run-ref' output is not set." ; exit 1; }
         [[ "${{ steps.info.outputs.run-sha }}" ]] || { echo "'run-sha' output is not set." ; exit 1; }
         [[ "${{ steps.info.outputs.run-sha-url }}" ]] || { echo "'run-sha-url' output is not set." ; exit 1; }
-        [[ "${{ steps.info.outputs.run-event }}" ]] || { echo "'run-event' output is not set." ; exit 1; }
         [[ "${{ steps.info.outputs.run-artifact-dir }}" ]] || { echo "'run-artifact-dir' output is not set." ; exit 1; }
       shell: bash
 
     - name: Log Outputs
       run: |
         echo "run-id: ${{ steps.info.outputs.run-id }}"
+        echo "run-event: ${{ steps.info.outputs.run-event }}"
         echo "run-url: ${{ steps.info.outputs.run-url }}"
         echo "run-ref: ${{ steps.info.outputs.run-ref }}"
         echo "run-sha: ${{ steps.info.outputs.run-sha }}"
         echo "run-sha-url: ${{ steps.info.outputs.run-sha-url }}"
-        echo "run-event: ${{ steps.info.outputs.run-event }}"
         echo "run-artifact-dir: ${{ steps.info.outputs.run-artifact-dir }}"
       shell: bash
